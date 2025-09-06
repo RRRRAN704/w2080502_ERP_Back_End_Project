@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erp.mapper.ClientMapper">
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into client (employee_id,department_id,company_name,contact_person,contact_phone,
+                            contact_email,address,is_archived,create_time, update_time,create_user,update_user,
+                            remark)
+        values (#{employeeId},#{departmentId},#{companyName},#{contactPerson},#{contactPhone},#{contactEmail},
+                #{address},#{isArchived},#{createTime},#{updateTime},#{createUser},#{updateUser},
+                #{remark})
+    </insert>
+
+
+    <update id="update" parameterType="Client">
+        update `client`
+        <set>
+            <if test = "employeeId != null"> employee_id = #{employeeId},</if>
+            <if test = "departmentId != null"> department_id = #{departmentId},</if>
+            <if test = "companyName != null"> company_name = #{companyName},</if>
+            <if test = "contactPerson != null"> contact_person = #{contactPerson},</if>
+            <if test = "contactPhone != null"> contact_phone = #{contactPhone},</if>
+            <if test = "contactEmail != null"> contact_email = #{contactEmail},</if>
+            <if test = "address != null"> address = #{address},</if>
+            <if test = "isArchived != null"> is_archived = #{isArchived},</if>
+            <if test = "updateTime != null"> update_time = #{updateTime},</if>
+            <if test = "updateUser != null"> update_user = #{updateUser},</if>
+            <if test = "remark != null"> remark = #{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <select id="managerPageQuery" resultType="com.erp.entity.Client">
+        select * from `client`
+        <where>
+            is_archived = 0
+            <if test = "clientPageQueryDTO.companyName != null and clientPageQueryDTO.companyName != ''">
+                and company_name like concat ('%',#{clientPageQueryDTO.companyName},'%')</if>
+            <if test="departmentId != null">
+                 and department_id = #{departmentId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="consultantPageQuery" resultType="com.erp.entity.Client">
+        select * from `client`
+        <where>
+            is_archived = 0
+            <if test = "clientPageQueryDTO.companyName != null and clientPageQueryDTO.companyName != ''">
+                and company_name like concat ('%',#{clientPageQueryDTO.companyName},'%')</if>
+            <if test="employeeId != null">
+                and employee_id = #{employeeId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="consultantArchivedPageQuery" resultType="com.erp.entity.Client">
+        select * from `client`
+        <where>
+            is_archived = 1
+            <if test = "clientPageQueryDTO.companyName != null and clientPageQueryDTO.companyName != ''">
+                and company_name like concat ('%',#{clientPageQueryDTO.companyName},'%')</if>
+            <if test="employeeId != null">
+                and employee_id = #{employeeId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+
+    <select id="managerArchivedPageQuery" resultType="com.erp.entity.Client">
+        select * from `client`
+        <where>
+            is_archived = 1
+            <if test = "clientPageQueryDTO.companyName != null and clientPageQueryDTO.companyName != ''">
+                and company_name like concat ('%',#{clientPageQueryDTO.companyName},'%')</if>
+            <if test="departmentId != null">
+                and department_id = #{departmentId}</if>
+        </where>
+        order by create_time desc
+    </select>
+</mapper>

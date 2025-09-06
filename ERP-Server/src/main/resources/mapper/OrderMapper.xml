@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erp.mapper.OrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into `order` (company_name,contact_person,contact_phone,contact_email,remark,create_time)
+        values (#{companyName},#{contactPerson},#{contactPhone},#{contactEmail},#{remark},#{createTime})
+    </insert>
+
+    <update id="update" parameterType="Order">
+        update `order`
+        <set>
+            <if test = "isArchived != null"> is_archived = #{isArchived},</if>
+            <if test = "assignTime != null"> assign_time = #{assignTime},</if>
+            <if test = "updateTime != null"> update_time = #{updateTime},</if>
+            <if test = "updateUser != null"> update_user = #{updateUser},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <update id="assignOrder" parameterType="Order">
+        update `order`
+        <set>
+            <if test = "employeeId != null"> employee_id = #{employeeId},</if>
+            <if test = "assignTime != null"> assign_time = #{assignTime},</if>
+            <if test = "updateTime != null"> update_time = #{updateTime},</if>
+            <if test = "updateUser != null"> update_user = #{updateUser},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <select id="managerPageQuery" resultType="com.erp.entity.Order">
+        select * from `order`
+        <where>
+            is_archived = 0
+            <if test = "companyName != null and companyName != ''">
+                and company_name like concat ('%',#{companyName},'%')
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="consultantPageQuery" resultType="com.erp.entity.Order">
+        select * from `order`
+        <where>
+            is_archived = 0
+            <if test = "orderPageQueryDTO.companyName != null and orderPageQueryDTO.companyName != ''">
+                and company_name like concat ('%',#{orderPageQueryDTO.companyName},'%')
+            </if>
+            <if test="employeeId != null">and employee_id = #{employeeId}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="consultantArchivedPageQuery" resultType="com.erp.entity.Order">
+        select * from `order`
+        <where>
+            is_archived = 1
+            <if test = "orderPageQueryDTO.companyName != null and orderPageQueryDTO.companyName != ''">
+                and company_name like concat ('%',#{orderPageQueryDTO.companyName},'%')
+            </if>
+            <if test="employeeId != null">and employee_id = #{employeeId}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="managerArchivedPageQuery" resultType="com.erp.entity.Order">
+        select * from `order`
+        <where>
+            is_archived = 1
+            <if test = "companyName != null and companyName != ''">
+                and company_name like concat ('%',#{companyName},'%')
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from `order`
+        <where>
+            <if test="begin != null">
+                and create_time &gt; #{begin}
+            </if>
+            <if test="end != null">
+                and create_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+</mapper>

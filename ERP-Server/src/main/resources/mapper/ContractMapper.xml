@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erp.mapper.ContractMapper">
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into contract (contract_name,contract_number,employee_id,client_id,department_id,
+                              amount,start_date,end_date,is_archived, file_url,create_time,create_user,
+                              update_time,update_user)
+        values (#{contractName},#{contractNumber},#{employeeId},#{clientId},#{departmentId},#{amount},
+                #{startDate},#{endDate},#{isArchived},#{fileUrl},#{createTime},#{createUser},
+                #{updateTime},#{updateUser})
+    </insert>
+
+
+    <update id="update" parameterType="Contract">
+        update `contract`
+        <set>
+            <if test = "contractName != null"> contract_name = #{contractName},</if>
+            <if test = "contractNumber != null"> contract_number = #{contractNumber},</if>
+            <if test = "employeeId != null"> employee_id = #{employeeId},</if>
+            <if test = "clientId != null"> client_id = #{clientId},</if>
+            <if test = "departmentId != null"> department_id = #{departmentId},</if>
+            <if test = "amount != null"> amount = #{amount},</if>
+            <if test = "startDate != null"> start_date = #{startDate},</if>
+            <if test = "endDate != null"> end_date = #{endDate},</if>
+            <if test = "isArchived != null"> is_archived = #{isArchived},</if>
+            <if test = "fileUrl != null"> file_url = #{fileUrl},</if>
+            <if test = "updateTime != null"> update_time = #{updateTime},</if>
+            <if test = "updateUser != null"> update_user = #{updateUser},</if>
+        </set>
+        where id = #{id}
+ </update>
+
+    <select id="managerPageQuery" resultType="com.erp.entity.Contract">
+        select * from `contract`
+        <where>
+            is_archived = 0
+            <if test = "contractPageQueryDTO.contractName != null and contractPageQueryDTO.contractName != ''">
+                and contract_name like concat ('%',#{contractPageQueryDTO.contractName},'%')</if>
+            <if test="departmentId != null">
+                and department_id = #{departmentId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="consultantPageQuery" resultType="com.erp.entity.Contract">
+        select * from `contract`
+        <where>
+            is_archived = 0
+            <if test = "contractPageQueryDTO.contractName != null and contractPageQueryDTO.contractName != ''">
+                and contract_name like concat ('%',#{contractPageQueryDTO.contractName},'%')</if>
+            <if test="employeeId != null">
+                and employee_id = #{employeeId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="consultantArchivedPageQuery" resultType="com.erp.entity.Contract">
+        select * from `contract`
+        <where>
+            is_archived = 1
+            <if test = "contractPageQueryDTO.contractName != null and contractPageQueryDTO.contractName != ''">
+                and contract_name like concat ('%',#{contractPageQueryDTO.contractName},'%')</if>
+            <if test="employeeId != null">
+                and employee_id = #{employeeId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="managerArchivedPageQuery" resultType="com.erp.entity.Contract">
+        select * from `contract`
+        <where>
+            is_archived = 1
+            <if test = "contractPageQueryDTO.contractName != null and contractPageQueryDTO.contractName != ''">
+                and contract_name like concat ('%',#{contractPageQueryDTO.contractName},'%')</if>
+            <if test="departmentId != null">
+                and department_id = #{departmentId}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from `contract`
+        <where>
+            <if test="begin != null">
+                and create_time &gt; #{begin}
+            </if>
+            <if test="end != null">
+                and create_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="sumByMap" resultType="java.lang.Integer">
+        select sum(amount) from `contract`
+        <where>
+            <if test="begin != null">
+                and create_time &gt; #{begin}
+            </if>
+            <if test="end != null">
+                and create_time &lt; #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTopEmployeeByContractAmount" resultType="java.util.Map">
+        select
+        e.name,
+        sum(c.amount) as totalAmount
+        FROM contract c
+        JOIN employee e ON c.employee_id = e.id
+        <where>
+            <if test="beginTime != null">
+                c.create_time &gt; #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and c.create_time &lt; #{endTime}
+            </if>
+        </where>
+        GROUP BY c.employee_id, e.name
+        ORDER BY totalAmount DESC
+        LIMIT 5
+    </select>
+
+
+</mapper>

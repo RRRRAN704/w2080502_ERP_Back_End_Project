@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erp.mapper.PositionMapper">
+
+
+    <insert id="insertPosition" useGeneratedKeys="true" keyProperty="id">
+        insert into position (position_name,department_id,create_time, update_time,create_user,update_user)
+        values (#{positionName},#{departmentId},#{createTime},#{updateTime},#{createUser},#{updateUser})
+    </insert>
+
+    <update id="updatePosition" parameterType="Position">
+    update position
+        <set>
+            <if test = "positionName != null"> position_name = #{positionName},</if>
+            <if test = "departmentId != null"> department_id = #{departmentId},</if>
+            <if test = "updateTime != null"> update_time = #{updateTime},</if>
+            <if test = "updateUser != null"> update_user = #{updateUser},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="positionPageQuery" resultType="com.erp.entity.Position">
+    select * from position
+    <where>
+        <if test="positionName != null and positionName != ''" >
+        and position_name like concat ('%',#{positionName},'%')
+        </if>
+    </where>
+        order by create_time desc
+    </select>
+</mapper>
